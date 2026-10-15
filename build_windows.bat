@@ -4,7 +4,7 @@ cd /d "%~dp0backend"
 python -m pip install -r requirements.txt pyinstaller || exit /b 1
 python -m pytest -q || exit /b 1
 pyinstaller --onefile --noconsole --name ShApp ^
-  --add-data "app\web;web" --collect-submodules uvicorn --collect-submodules webview ^
+  --add-data "app\web;web" --collect-submodules uvicorn ^
   run.py || exit /b 1
 echo.
 echo Done: backend\dist\ShApp.exe

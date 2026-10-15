@@ -109,10 +109,32 @@ def export(products: list[Product]):
 PORT = 8765
 
 
+_last_ping = {"t": 0.0}
+
+
+@app.get("/api/ping")
+def ping():
+    import time
+    _last_ping["t"] = time.time()
+    return {"ok": True}
+
+
+@app.get("/api/stats")
+def stats():
+    top = sorted(db.all_products(500), key=lambda p: p.opportunity_score, reverse=True)[:10]
+    return {**db.stats(), "top": top}
+
+
+@app.get("/api/products", response_model=list[Product])
+def products(limit: int = 200):
+    return db.all_products(limit)
+
+
 @app.get("/api/config")
 def get_config():
     cfg = config.load()
-    return {"lan": bool(cfg.get("lan")), "lan_url": f"http://{config.lan_ip()}:{PORT}"}
+    return {"lan": bool(cfg.get("lan")), "lan_url": f"http://{config.lan_ip()}:{PORT}",
+            "log": str(config.CFG.parent / "log.txt")}
 
 
 @app.post("/api/config")

@@ -57,3 +57,18 @@ def history(source: str, source_id: str) -> list[dict]:
             "SELECT ts, price, rating_count FROM history WHERE source=? AND source_id=? ORDER BY ts",
             (source, source_id)).fetchall()
     return [{"ts": r[0], "price": r[1], "rating_count": r[2]} for r in rows]
+
+
+def all_products(limit: int = 200) -> list[Product]:
+    with _conn() as c:
+        rows = c.execute("SELECT data FROM products ORDER BY updated DESC LIMIT ?", (limit,)).fetchall()
+    return [Product.model_validate(json.loads(r[0])) for r in rows]
+
+
+def stats() -> dict:
+    with _conn() as c:
+        total = c.execute("SELECT COUNT(*) FROM products").fetchone()[0]
+        saved = c.execute("SELECT COUNT(*) FROM products WHERE saved=1").fetchone()[0]
+        by_src = dict(c.execute("SELECT source, COUNT(*) FROM products GROUP BY source").fetchall())
+        last = c.execute("SELECT MAX(updated) FROM products").fetchone()[0]
+    return {"total": total, "saved": saved, "by_source": by_src, "last_update": last}

@@ -72,3 +72,11 @@ def test_web_ui_served():
     r = c.get("/")
     assert r.status_code == 200 and "یابنده" in r.text
     assert c.get("/api/config").json()["lan_url"].startswith("http://")
+
+
+def test_dashboard_endpoints():
+    c = TestClient(app)
+    assert c.get("/api/ping").json()["ok"]
+    s = c.get("/api/stats").json()
+    assert {"total", "saved", "by_source", "top"} <= s.keys()
+    assert isinstance(c.get("/api/products").json(), list)

@@ -1,135 +1,270 @@
 <!doctype html>
-<html lang="fa" dir="rtl">
+<html lang="fa" dir="rtl" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>یابنده‌ی محصول پرفروش</title>
 <style>
-:root{--bg:#faf7f3;--card:#fff;--tx:#2b2118;--mut:#7a6a5c;--ac:#8d5524;--bd:#e6ddd2;--ok:#2e7d32;--er:#c62828}
-@media(prefers-color-scheme:dark){:root{--bg:#1b1612;--card:#252019;--tx:#f1e9df;--mut:#a89888;--ac:#d9a066;--bd:#3a3128}}
-*{box-sizing:border-box}body{margin:0;font-family:Tahoma,Vazirmatn,sans-serif;background:var(--bg);color:var(--tx)}
-header{display:flex;gap:4px;padding:8px 12px;border-bottom:1px solid var(--bd);background:var(--card);position:sticky;top:0;flex-wrap:wrap}
-header button{background:none;border:0;padding:8px 14px;border-radius:8px;color:var(--tx);cursor:pointer;font:inherit}
-header button.on{background:var(--ac);color:#fff}
-main{max-width:1000px;margin:0 auto;padding:12px}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin-bottom:12px}
-label{display:flex;flex-direction:column;font-size:12px;color:var(--mut);gap:3px}
-input,select{padding:8px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--tx);font:inherit}
-.btn{padding:9px 16px;border:0;border-radius:8px;background:var(--ac);color:#fff;cursor:pointer;font:inherit}
-.btn.sec{background:none;border:1px solid var(--ac);color:var(--ac)}
-.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:10px;margin-bottom:8px;display:flex;gap:10px;cursor:pointer}
-.card img{width:64px;height:64px;object-fit:cover;border-radius:8px;background:var(--bd)}
-.card .t{font-weight:bold}.card .m{font-size:12px;color:var(--mut);margin-top:4px}
-.score{margin-inline-start:auto;text-align:center;min-width:48px}.score b{font-size:22px;color:var(--ac)}.score small{display:block;font-size:10px;color:var(--mut)}
-.err{color:var(--er);margin:8px 0}.ok{color:var(--ok)}
-table{width:100%;border-collapse:collapse;font-size:13px}td{padding:5px;border-bottom:1px solid var(--bd);vertical-align:top}td:first-child{font-weight:bold;width:160px;color:var(--mut)}
-h3{margin:16px 0 6px}.hide{display:none}
-.spin{height:3px;background:linear-gradient(90deg,transparent,var(--ac),transparent);animation:s 1s infinite linear;background-size:200%}
+:root{--bg:#f4f1ec;--panel:#fff;--side:#2a1f16;--sidetx:#e9dccb;--tx:#241a12;--mut:#85766a;--ac:#a0642a;--ac2:#c98a4b;--bd:#e7dfd4;--ok:#2e7d32;--er:#c62828;--warn:#ed8b00;--sh:0 1px 3px rgba(40,25,10,.08)}
+[data-theme=dark]{--bg:#16110d;--panel:#211a14;--side:#0f0b08;--sidetx:#cdbfae;--tx:#f0e7dc;--mut:#a39384;--ac:#d9a066;--ac2:#b97d3f;--bd:#352b22;--sh:none}
+*{box-sizing:border-box}body{margin:0;font-family:Vazirmatn,Tahoma,"Segoe UI",sans-serif;background:var(--bg);color:var(--tx);font-size:14px}
+a{color:var(--ac)}
+.app{display:grid;grid-template-columns:230px 1fr;min-height:100vh}
+aside{background:var(--side);color:var(--sidetx);padding:16px 10px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:4px}
+aside .logo{font-size:17px;font-weight:bold;padding:6px 10px 16px;color:#fff;display:flex;gap:8px;align-items:center}
+aside .logo i{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--ac2),var(--ac));display:grid;place-items:center;font-style:normal}
+aside a.nav{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:10px;color:inherit;text-decoration:none;cursor:pointer}
+aside a.nav:hover{background:rgba(255,255,255,.07)}aside a.nav.on{background:var(--ac);color:#fff}
+aside .foot{margin-top:auto;font-size:11px;opacity:.6;padding:8px 10px}
+.top{display:flex;align-items:center;gap:10px;padding:12px 20px;background:var(--panel);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:5}
+.top h1{font-size:17px;margin:0;flex:1}
+.pill{padding:4px 10px;border-radius:99px;font-size:12px;background:var(--bg);border:1px solid var(--bd);color:var(--mut)}
+.pill.ok{color:var(--ok)}
+.ib{background:none;border:1px solid var(--bd);border-radius:8px;padding:6px 10px;cursor:pointer;color:var(--tx);font:inherit}
+.menu{display:none}
+main{padding:20px;max-width:1300px}
+.grid{display:grid;gap:14px}.g4{grid-template-columns:repeat(4,1fr)}.g2{grid-template-columns:1.4fr 1fr}
+.card{background:var(--panel);border:1px solid var(--bd);border-radius:14px;padding:16px;box-shadow:var(--sh)}
+.card h2{font-size:14px;margin:0 0 12px;color:var(--mut);font-weight:600}
+.kpi b{font-size:28px;display:block;margin-top:4px}.kpi small{color:var(--mut)}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+label{display:flex;flex-direction:column;font-size:12px;color:var(--mut);gap:4px}
+input,select,textarea{padding:9px 10px;border:1px solid var(--bd);border-radius:9px;background:var(--bg);color:var(--tx);font:inherit;min-width:0}
+input:focus,select:focus{outline:2px solid var(--ac2);outline-offset:-1px}
+.btn{padding:9px 18px;border:0;border-radius:9px;background:var(--ac);color:#fff;cursor:pointer;font:inherit;font-weight:600}
+.btn:hover{filter:brightness(1.1)}.btn:disabled{opacity:.5}.btn.sec{background:none;border:1px solid var(--ac);color:var(--ac)}
+.tw{overflow:auto;border:1px solid var(--bd);border-radius:12px;margin-top:14px;background:var(--panel)}
+table{width:100%;border-collapse:collapse}
+th{position:sticky;top:0;background:var(--panel);text-align:right;padding:10px;font-size:12px;color:var(--mut);border-bottom:1px solid var(--bd);cursor:pointer;white-space:nowrap;user-select:none}
+th.s::after{content:" ▾"}th.s.asc::after{content:" ▴"}
+td{padding:9px 10px;border-bottom:1px solid var(--bd);vertical-align:middle}
+tr.r:hover{background:var(--bg);cursor:pointer}
+td img{width:42px;height:42px;border-radius:8px;object-fit:cover;background:var(--bd);display:block}
+.tt{max-width:340px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:600}
+.bar{height:8px;border-radius:99px;background:var(--bd);min-width:70px;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--ac2),var(--ac))}
+.tag{padding:2px 8px;border-radius:99px;font-size:11px;background:var(--bg);border:1px solid var(--bd)}
+.tag.digikala{color:#d32f2f}.tag.torob{color:#1565c0}.tag.basalam{color:#2e7d32}
+.muted{color:var(--mut)}.err{color:var(--er);padding:10px 0}.hide{display:none!important}
+.spin{height:3px;margin-top:10px;background:linear-gradient(90deg,transparent,var(--ac),transparent);background-size:200%;animation:s 1s infinite linear}
 @keyframes s{to{background-position:-200% 0}}
+.drawer{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:20;display:flex;justify-content:flex-start}
+.drawer>div{width:min(620px,100%);background:var(--panel);height:100%;overflow:auto;padding:20px;box-shadow:0 0 30px rgba(0,0,0,.3)}
+.kv{display:grid;grid-template-columns:150px 1fr;gap:6px 10px;font-size:13px}.kv span:nth-child(odd){color:var(--mut)}
+.empty{text-align:center;padding:40px;color:var(--mut)}
+.pager{display:flex;gap:8px;align-items:center;justify-content:center;padding:10px}
+svg text{fill:var(--tx);font-family:inherit}
+@media(max-width:900px){.app{grid-template-columns:1fr}aside{position:fixed;z-index:30;width:230px;right:-240px;transition:right .2s}aside.open{right:0}.menu{display:block}.g4{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}main{padding:12px}}
 </style>
 </head>
 <body>
-<header>
-  <button data-t="discover" class="on">کشف پرفروش‌ها</button>
-  <button data-t="analyze">تحلیل لینک</button>
-  <button data-t="saved">ذخیره‌شده</button>
-  <button data-t="settings">تنظیمات</button>
-</header>
+<div class="app">
+<aside id="side">
+  <div class="logo"><i>🪵</i>یابنده‌ی محصول</div>
+  <a class="nav on" data-t="dash">📊 داشبورد</a>
+  <a class="nav" data-t="discover">🔥 کشف پرفروش‌ها</a>
+  <a class="nav" data-t="analyze">🔗 تحلیل لینک</a>
+  <a class="nav" data-t="saved">⭐ ذخیره‌شده‌ها</a>
+  <a class="nav" data-t="history">🗂 همه‌ی محصولات</a>
+  <a class="nav" data-t="settings">⚙️ تنظیمات</a>
+  <div class="foot">دیجی‌کالا • ترب • باسلام</div>
+</aside>
+<div>
+<div class="top">
+  <button class="ib menu" id="menu">☰</button>
+  <h1 id="title">داشبورد</h1>
+  <span class="pill ok" id="conn">● متصل</span>
+  <button class="ib" id="theme" title="تم">🌓</button>
+</div>
 <main>
-<section id="discover">
-  <div class="row">
-    <label>منبع<select id="d-src"><option value="digikala">دیجی‌کالا</option><option value="torob">ترب</option><option value="basalam">باسلام</option></select></label>
-    <label>مرتب‌سازی<select id="d-sort"><option value="bestseller">پرفروش‌ترین</option><option value="visits">پربازدیدترین</option><option value="newest">جدیدترین</option><option value="cheapest">ارزان‌ترین</option></select></label>
-    <label style="flex:1;min-width:200px"><span id="d-hint">اسلاگ دسته (مثل wood-and-timber از آدرس دسته در دیجی‌کالا)</span><input id="d-cat"></label>
-    <label>حداقل قیمت<input id="d-min" type="number" style="width:110px"></label>
-    <label>حداکثر قیمت<input id="d-max" type="number" style="width:110px"></label>
-    <label>تعداد صفحه<input id="d-pages" type="number" value="2" min="1" max="10" style="width:70px"></label>
-    <button class="btn" id="d-go">بیاب</button>
-    <button class="btn sec hide" id="d-csv">خروجی CSV</button>
+
+<section id="dash">
+  <div class="grid g4">
+    <div class="card kpi"><small>محصولات بررسی‌شده</small><b id="k-total">—</b></div>
+    <div class="card kpi"><small>ذخیره‌شده</small><b id="k-saved">—</b></div>
+    <div class="card kpi"><small>بهترین امتیاز فرصت</small><b id="k-best">—</b></div>
+    <div class="card kpi"><small>آخرین به‌روزرسانی</small><b id="k-last" style="font-size:16px">—</b></div>
   </div>
-  <div id="d-out"></div>
+  <div class="grid g2" style="margin-top:14px">
+    <div class="card"><h2>۱۰ فرصت برتر (از همه‌ی جستجوها)</h2><div id="ch-top"></div></div>
+    <div class="card"><h2>سهم منابع</h2><div id="ch-src"></div></div>
+  </div>
+  <div class="card" style="margin-top:14px"><h2>شروع سریع</h2>
+    <p class="muted" style="margin:0">۱) در «کشف پرفروش‌ها» یک دسته یا عبارت (مثلاً «تخته چوب راش») را جستجو کنید. ۲) روی هر محصول بزنید تا همه‌ی اطلاعاتش را ببینید. ۳) محصولات خوب را ذخیره کنید و با خروجی CSV برای تصمیم‌گیری ببرید.</p></div>
 </section>
+
+<section id="discover" class="hide">
+  <div class="card"><div class="toolbar">
+    <label>منبع<select id="d-src"><option value="digikala">دیجی‌کالا</option><option value="torob">ترب</option><option value="basalam">باسلام</option></select></label>
+    <label>مرتب‌سازی در سایت<select id="d-sort"><option value="bestseller">پرفروش‌ترین</option><option value="visits">پربازدیدترین</option><option value="newest">جدیدترین</option><option value="cheapest">ارزان‌ترین</option></select></label>
+    <label style="flex:1;min-width:220px"><span id="d-hint">اسلاگ دسته (مثل wood-and-timber از آدرس دسته در دیجی‌کالا)</span><input id="d-cat"></label>
+    <label>حداقل قیمت<input id="d-min" type="number" style="width:120px"></label>
+    <label>حداکثر قیمت<input id="d-max" type="number" style="width:120px"></label>
+    <label>صفحه<input id="d-pages" type="number" value="2" min="1" max="10" style="width:70px"></label>
+    <button class="btn" id="d-go">بیاب</button>
+  </div></div>
+  <div id="d-box"></div>
+</section>
+
 <section id="analyze" class="hide">
-  <div class="row"><label style="flex:1;min-width:240px">لینک محصول (دیجی‌کالا / ترب / باسلام)<input id="a-url" dir="ltr"></label>
-  <button class="btn" id="a-go">تحلیل</button></div>
+  <div class="card"><div class="toolbar">
+    <label style="flex:1;min-width:260px">لینک محصول (دیجی‌کالا / ترب / باسلام)<input id="a-url" dir="ltr" placeholder="https://www.digikala.com/product/dkp-..."></label>
+    <button class="btn" id="a-go">تحلیل کامل</button></div></div>
   <div id="a-out"></div>
 </section>
-<section id="saved" class="hide"><div id="s-out"></div></section>
+
+<section id="saved" class="hide"><div id="s-box"></div></section>
+<section id="history" class="hide"><div id="h-box"></div></section>
+
 <section id="settings" class="hide">
-  <div class="row"><label><span>اجازه‌ی اتصال موبایل از شبکه‌ی محلی (بعد از تغییر، برنامه را ببندید و دوباره باز کنید)</span>
-  <select id="c-lan"><option value="false">خاموش</option><option value="true">روشن</option></select></label></div>
-  <p id="c-url"></p>
-  <p style="color:var(--mut)">در موبایل، آدرس بالا را در مرورگر باز کنید (و با «افزودن به صفحه‌ی اصلی» مثل اپ نصبش کنید). موبایل و کامپیوتر باید به یک وای‌فای باشند و اگر ویندوز پرسید، دسترسی شبکه را Allow کنید.</p>
+  <div class="card" style="max-width:640px"><h2>اتصال موبایل</h2>
+    <label>اجازه‌ی اتصال از شبکه‌ی محلی (بعد از تغییر، برنامه را ببندید و باز کنید)
+    <select id="c-lan"><option value="false">خاموش</option><option value="true">روشن</option></select></label>
+    <p id="c-url"></p>
+    <p class="muted">موبایل و کامپیوتر باید روی یک وای‌فای باشند. آدرس را در مرورگر موبایل باز کنید. اگر ویندوز پرسید، دسترسی شبکه را Allow کنید.</p>
+    <h2 style="margin-top:20px">فایل لاگ</h2><p class="muted" dir="ltr" id="c-log"></p>
+  </div>
 </section>
 </main>
+</div>
+</div>
+<div id="drawer" class="drawer hide"><div id="dr"></div></div>
+
 <script>
-const $=s=>document.querySelector(s);
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
 const esc=s=>String(s??'—').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const num=n=>n==null?'—':Math.round(n).toLocaleString('fa-IR');
 const SRC={digikala:'دیجی‌کالا',torob:'ترب',basalam:'باسلام'};
-let last=[];
+const TITLES={dash:'داشبورد',discover:'کشف پرفروش‌ها',analyze:'تحلیل لینک',saved:'ذخیره‌شده‌ها',history:'همه‌ی محصولات',settings:'تنظیمات'};
 async function api(path,body,method){
   const r=await fetch(path,{method:method||(body?'POST':'GET'),headers:{'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined});
   const d=await r.json().catch(()=>({}));
-  if(!r.ok)throw new Error(d.detail||('خطا '+r.status));
+  if(!r.ok)throw new Error(typeof d.detail==='string'?d.detail:('خطا '+r.status));
   return d;
 }
-document.querySelectorAll('header button').forEach(b=>b.onclick=()=>{
-  document.querySelectorAll('header button').forEach(x=>x.classList.toggle('on',x===b));
-  document.querySelectorAll('main section').forEach(s=>s.classList.toggle('hide',s.id!==b.dataset.t));
-  if(b.dataset.t==='saved')loadSaved();
-  if(b.dataset.t==='settings')loadCfg();
-});
+// ---- حیات برنامه / وضعیت اتصال
+async function beat(){try{await fetch('/api/ping');$('#conn').textContent='● متصل';$('#conn').className='pill ok'}catch{$('#conn').textContent='● قطع';$('#conn').className='pill'}}
+beat();setInterval(beat,5000);
+// ---- تم و منو
+const th=localStorage.getItem('theme');if(th)document.documentElement.dataset.theme=th;
+$('#theme').onclick=()=>{const d=document.documentElement;d.dataset.theme=d.dataset.theme==='dark'?'light':'dark';localStorage.setItem('theme',d.dataset.theme)};
+$('#menu').onclick=()=>$('#side').classList.toggle('open');
+function go(t){
+  $$('aside a.nav').forEach(x=>x.classList.toggle('on',x.dataset.t===t));
+  $$('main section').forEach(s=>s.classList.toggle('hide',s.id!==t));
+  $('#title').textContent=TITLES[t];$('#side').classList.remove('open');
+  ({dash:loadDash,saved:loadSaved,history:loadHistory,settings:loadCfg}[t]||(()=>{}))();
+}
+$$('aside a.nav').forEach(a=>a.onclick=()=>go(a.dataset.t));
+
+// ---- جدول محصولات (مرتب‌سازی، فیلتر، صفحه‌بندی)
+function productTable(box,items,opts={}){
+  let sort='opportunity_score',asc=false,q='',page=0,PS=25,src='';
+  const cols=[['',null],['محصول','title'],['منبع','source'],['قیمت (تومان)','price'],['تقاضا','_dem'],['فروشنده','seller_count'],['امتیاز','rating'],['فرصت','opportunity_score'],['','']];
+  const dem=p=>p.sold_count??p.rating_count??0;
+  box.innerHTML=`<div class="toolbar" style="margin-top:14px"><input id="f-q" placeholder="فیلتر در نتایج…" style="min-width:200px"><select id="f-s"><option value="">همه‌ی منابع</option><option value="digikala">دیجی‌کالا</option><option value="torob">ترب</option><option value="basalam">باسلام</option></select><span class="muted" id="f-n"></span><span style="flex:1"></span><button class="btn sec" id="f-csv">⬇ خروجی CSV</button></div><div class="tw"><table><thead><tr></tr></thead><tbody></tbody></table></div><div class="pager"></div>`;
+  const render=()=>{
+    let rows=items.filter(p=>(!q||p.title.toLowerCase().includes(q))&&(!src||p.source===src));
+    const key=sort==='_dem'?dem:p=>p[sort];
+    rows.sort((a,b)=>{const x=key(a),y=key(b);if(x==null)return 1;if(y==null)return -1;return (typeof x==='string'?x.localeCompare(y):x-y)*(asc?1:-1)});
+    const pages=Math.max(1,Math.ceil(rows.length/PS));page=Math.min(page,pages-1);
+    box.querySelector('#f-n').textContent=num(rows.length)+' محصول';
+    box.querySelector('thead tr').innerHTML=cols.map(([l,k])=>`<th ${k?`data-k="${k}"`:''} class="${k&&k===sort?'s '+(asc?'asc':''):''}">${l}</th>`).join('');
+    box.querySelectorAll('th[data-k]').forEach(h=>h.onclick=()=>{asc=sort===h.dataset.k?!asc:false;sort=h.dataset.k;render()});
+    const tb=box.querySelector('tbody');
+    tb.innerHTML=rows.slice(page*PS,page*PS+PS).map((p,i)=>`<tr class="r" data-i="${i}"><td>${p.image?`<img loading="lazy" src="${esc(p.image)}">`:''}</td><td><div class="tt">${esc(p.title)}</div></td><td><span class="tag ${esc(p.source)}">${SRC[p.source]||esc(p.source)}</span></td><td>${num(p.price)}${p.discount_percent?` <span class="tag">٪${num(p.discount_percent)}-</span>`:''}</td><td>${p.sold_count!=null?num(p.sold_count)+' فروش':num(p.rating_count)+' نظر'}</td><td>${num(p.seller_count)}</td><td>${p.rating??'—'}</td><td><div style="display:flex;gap:8px;align-items:center"><b>${num(p.opportunity_score)}</b><div class="bar"><i style="width:${Math.min(100,p.opportunity_score)}%"></i></div></div></td><td><button class="ib" data-sv="${i}" title="ذخیره">⭐</button></td></tr>`).join('')||`<tr><td colspan="9" class="empty">نتیجه‌ای نیست</td></tr>`;
+    const view=rows.slice(page*PS,page*PS+PS);
+    tb.querySelectorAll('tr.r').forEach(tr=>tr.onclick=e=>{if(e.target.closest('[data-sv]'))return;openDetail(view[tr.dataset.i])});
+    tb.querySelectorAll('[data-sv]').forEach(b=>b.onclick=async()=>{const p=view[b.dataset.sv];await api(`/api/save/${p.source}/${p.source_id}?saved=${!opts.unsave}`,{});b.textContent=opts.unsave?'✓':'✓ ذخیره شد'; if(opts.unsave)loadSaved()});
+    box.querySelector('.pager').innerHTML=pages>1?`<button class="ib" id="pp">قبلی</button><span>${num(page+1)} از ${num(pages)}</span><button class="ib" id="pn">بعدی</button>`:'';
+    const pp=box.querySelector('#pp'),pn=box.querySelector('#pn');if(pp){pp.onclick=()=>{page=Math.max(0,page-1);render()};pn.onclick=()=>{page=Math.min(pages-1,page+1);render()}}
+  };
+  box.querySelector('#f-q').oninput=e=>{q=e.target.value.toLowerCase();page=0;render()};
+  box.querySelector('#f-s').onchange=e=>{src=e.target.value;page=0;render()};
+  box.querySelector('#f-csv').onclick=async()=>{const r=await fetch('/api/export.csv',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(items)});const a=document.createElement('a');a.href=URL.createObjectURL(await r.blob());a.download='products.csv';a.click()};
+  render();
+}
+// ---- نمودارها (SVG ساده، بدون اینترنت)
+function barChart(el,items){
+  if(!items.length){el.innerHTML='<div class="empty">هنوز داده‌ای نیست؛ یک جستجو انجام دهید.</div>';return}
+  const W=560,H=items.length*30+6;
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="100%" style="direction:ltr">`+items.map((p,i)=>{const w=Math.max(4,p.opportunity_score/100*250);
+   return `<text x="${W-4}" y="${i*30+19}" text-anchor="end" font-size="12">${esc(p.title.slice(0,24))}</text><rect x="${W-215-w}" y="${i*30+8}" width="${w}" height="14" rx="4" fill="var(--ac)" opacity="${1-i*0.05}"/><text x="${W-221-w}" y="${i*30+19}" text-anchor="end" font-size="11">${num(p.opportunity_score)}</text>`}).join('')+'</svg>';
+}
+function donut(el,data){
+  const tot=Object.values(data).reduce((a,b)=>a+b,0);
+  if(!tot){el.innerHTML='<div class="empty">—</div>';return}
+  const col={digikala:'#d32f2f',torob:'#1565c0',basalam:'#2e7d32'};let off=0,R=60,C=2*Math.PI*R;
+  const arcs=Object.entries(data).map(([k,v])=>{const l=v/tot*C;const s=`<circle r="${R}" cx="90" cy="90" fill="none" stroke="${col[k]||'#888'}" stroke-width="26" stroke-dasharray="${l} ${C-l}" stroke-dashoffset="${-off}" transform="rotate(-90 90 90)"/>`;off+=l;return s}).join('');
+  el.innerHTML=`<div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap"><svg viewBox="0 0 180 180" width="170">${arcs}<text x="90" y="96" text-anchor="middle" font-size="22" font-weight="bold">${num(tot)}</text></svg><div>`+Object.entries(data).map(([k,v])=>`<div><span style="color:${col[k]}">●</span> ${SRC[k]||esc(k)}: <b>${num(v)}</b></div>`).join('')+'</div></div>';
+}
+function line(el,pts,label){
+  pts=pts.filter(p=>p.v!=null);if(pts.length<2){el.innerHTML='<div class="muted">برای نمودار، چند بار این محصول را تحلیل کنید (هر بار یک نقطه ثبت می‌شود).</div>';return}
+  const W=560,H=150,mn=Math.min(...pts.map(p=>p.v)),mx=Math.max(...pts.map(p=>p.v)),r=(mx-mn)||1;
+  const xy=pts.map((p,i)=>[20+i*(W-40)/(pts.length-1),H-20-(p.v-mn)/r*(H-40)]);
+  el.innerHTML=`<div class="muted">${label}</div><svg viewBox="0 0 ${W} ${H}" width="100%"><polyline fill="none" stroke="var(--ac)" stroke-width="2.5" points="${xy.map(a=>a.join(',')).join(' ')}"/>${xy.map((a,i)=>`<circle cx="${a[0]}" cy="${a[1]}" r="3.5" fill="var(--ac)"><title>${num(pts[i].v)}</title></circle>`).join('')}<text x="4" y="14" font-size="11">${num(mx)}</text><text x="4" y="${H-6}" font-size="11">${num(mn)}</text></svg>`;
+}
+// ---- داشبورد
+async function loadDash(){
+  try{const s=await api('/api/stats');
+   $('#k-total').textContent=num(s.total);$('#k-saved').textContent=num(s.saved);
+   $('#k-best').textContent=s.top[0]?num(s.top[0].opportunity_score):'—';
+   $('#k-last').textContent=s.last_update?new Date(s.last_update*1000).toLocaleString('fa-IR'):'—';
+   barChart($('#ch-top'),s.top);donut($('#ch-src'),s.by_source);
+   $('#ch-top').onclick=null;
+  }catch(e){}
+}
+// ---- کشف
 $('#d-src').onchange=()=>{$('#d-hint').textContent=$('#d-src').value==='digikala'?'اسلاگ دسته (مثل wood-and-timber از آدرس دسته در دیجی‌کالا)':'عبارت جستجو (مثل تخته چوب راش)'};
-function card(p){
-  const dem=p.sold_count!=null?'فروش: '+num(p.sold_count):'نظرات: '+num(p.rating_count);
-  const d=document.createElement('div');d.className='card';
-  d.innerHTML=`${p.image?`<img src="${esc(p.image)}" loading="lazy">`:'<img>'}<div><div class="t">${esc(p.title)}</div>
-  <div class="m">${SRC[p.source]||esc(p.source)} • ${num(p.price)} تومان${p.discount_percent?` • ٪${num(p.discount_percent)} تخفیف`:''}</div>
-  <div class="m">${dem} • فروشنده: ${num(p.seller_count)} • امتیاز: ${esc(p.rating)}</div></div>
-  <div class="score"><b>${num(p.opportunity_score)}</b><small>فرصت</small></div>`;
-  d.onclick=()=>{$('#a-url').value=p.url;document.querySelector('[data-t=analyze]').click();analyze()};
-  d.oncontextmenu=async e=>{e.preventDefault();await api(`/api/save/${p.source}/${p.source_id}?saved=true`,{});alert('ذخیره شد')};
-  return d;
-}
-function list(el,items){el.replaceChildren(...items.map(card))}
-async function discover(){
-  $('#d-out').innerHTML='<div class="spin"></div>';
-  try{
-    last=await api('/api/discover',{source:$('#d-src').value,category:$('#d-cat').value.trim(),sort:$('#d-sort').value,
-      pages:+$('#d-pages').value||2,min_price:+$('#d-min').value||null,max_price:+$('#d-max').value||null});
-    list($('#d-out'),last);$('#d-csv').classList.toggle('hide',!last.length);
-    if(!last.length)$('#d-out').innerHTML='<p class="err">نتیجه‌ای نبود.</p>';
-  }catch(e){$('#d-out').innerHTML=`<p class="err">${esc(e.message)}</p>`}
-}
-$('#d-go').onclick=discover;
-$('#d-csv').onclick=async()=>{
-  const r=await fetch('/api/export.csv',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(last)});
-  const a=document.createElement('a');a.href=URL.createObjectURL(await r.blob());a.download='products.csv';a.click();
+$('#d-go').onclick=async()=>{
+  const box=$('#d-box'),btn=$('#d-go');if(!$('#d-cat').value.trim()){box.innerHTML='<p class="err">دسته یا عبارت را وارد کنید.</p>';return}
+  box.innerHTML='<div class="spin"></div>';btn.disabled=true;
+  try{const r=await api('/api/discover',{source:$('#d-src').value,category:$('#d-cat').value.trim(),sort:$('#d-sort').value,pages:+$('#d-pages').value||2,min_price:+$('#d-min').value||null,max_price:+$('#d-max').value||null});
+    if(!r.length)box.innerHTML='<div class="card empty" style="margin-top:14px">نتیجه‌ای پیدا نشد.</div>';else productTable(box,r);
+  }catch(e){box.innerHTML=`<p class="err">${esc(e.message)}</p>`}
+  btn.disabled=false;
 };
-const kv=(rows)=>'<table>'+rows.filter(r=>r[1]!=null&&r[1]!=='').map(r=>`<tr><td>${esc(r[0])}</td><td>${r[1]}</td></tr>`).join('')+'</table>';
-async function analyze(){
-  const out=$('#a-out');out.innerHTML='<div class="spin"></div>';
-  try{
-    const d=await api('/api/analyze',{url:$('#a-url').value.trim()});const m=d.product;
+$('#d-cat').onkeydown=e=>{if(e.key==='Enter')$('#d-go').click()};
+// ---- جزئیات محصول (کشو)
+const kv=rows=>'<div class="kv">'+rows.filter(r=>r[1]!=null&&r[1]!==''&&r[1]!=='—').map(r=>`<span>${esc(r[0])}</span><span>${r[1]}</span>`).join('')+'</div>';
+async function openDetail(p){
+  $('#drawer').classList.remove('hide');
+  const dr=$('#dr');dr.innerHTML=`<button class="ib" id="x">✕ بستن</button><h2>${esc(p.title)}</h2><div class="spin"></div>`;
+  $('#x').onclick=closeDetail;
+  try{const d=await api('/api/analyze',{url:p.url});const m=d.product;
     const ex=Object.entries(m.extra||{}).filter(([k,v])=>v!=null&&v!==''&&v!==false).map(([k,v])=>[k,esc(Array.isArray(v)?v.join('، '):v)]);
-    out.innerHTML=`<h2>${esc(m.title)}</h2>`+kv([['منبع',SRC[m.source]],['قیمت',num(m.price)+' تومان'],
-      ['قبل از تخفیف',m.old_price?num(m.old_price):null],['امتیاز',esc(m.rating)],['تعداد نظرات',num(m.rating_count)],
-      ['تعداد فروش',m.sold_count!=null?num(m.sold_count):null],['تعداد فروشنده',num(m.seller_count)],
-      ['برند',esc(m.brand)],['دسته',esc(m.category)],['امتیاز تقاضا',num(m.demand_score)],['امتیاز فرصت',num(m.opportunity_score)],...ex])
-    +(Object.keys(m.specs).length?'<h3>مشخصات</h3>'+kv(Object.entries(m.specs).map(([k,v])=>[k,esc(v)])):'')
-    +(m.sellers.length?'<h3>فروشندگان</h3>'+kv(m.sellers.map(s=>[s.name,num(s.price)+' تومان '+esc(s.city||'')])):'')
-    +(d.history.length>1?'<h3>تاریخچه</h3>'+kv(d.history.map(h=>[new Date(h.ts*1000).toLocaleString('fa-IR'),'قیمت '+num(h.price)+' • نظرات '+num(h.rating_count)])):'')
-    +`<p><a href="${esc(m.url)}" target="_blank" rel="noopener">باز کردن در سایت</a> • <a href="#" id="a-save">ذخیره</a></p><h3>مشابه در سایت‌های دیگر</h3><div id="a-oth"></div>`;
-    $('#a-save').onclick=async e=>{e.preventDefault();await api(`/api/save/${m.source}/${m.source_id}?saved=true`,{});e.target.textContent='ذخیره شد ✓'};
-    list($('#a-oth'),d.other_sites);
-  }catch(e){out.innerHTML=`<p class="err">${esc(e.message)}</p>`}
+    dr.innerHTML=`<button class="ib" id="x">✕ بستن</button>${m.image?`<img src="${esc(m.image)}" style="width:100%;max-height:240px;object-fit:contain;margin-top:12px;border-radius:12px;background:var(--bg)">`:''}
+     <h2>${esc(m.title)}</h2><p><span class="tag ${esc(m.source)}">${SRC[m.source]||esc(m.source)}</span> <a href="${esc(m.url)}" target="_blank" rel="noopener">باز کردن در سایت ↗</a> <button class="btn sec" id="sv" style="margin-inline-start:10px;padding:4px 12px">⭐ ذخیره</button></p>
+     ${kv([['قیمت',num(m.price)+' تومان'],['قبل از تخفیف',m.old_price?num(m.old_price):null],['امتیاز',esc(m.rating)],['تعداد نظرات',num(m.rating_count)],['تعداد فروش',m.sold_count!=null?num(m.sold_count):null],['تعداد فروشنده',num(m.seller_count)],['برند',esc(m.brand)],['دسته',esc(m.category)],['امتیاز تقاضا',num(m.demand_score)],['امتیاز فرصت',`<b>${num(m.opportunity_score)}</b>`],...ex])}
+     <h3>روند قیمت</h3><div id="lc1"></div><h3>روند تعداد نظرات</h3><div id="lc2"></div>
+     ${Object.keys(m.specs).length?'<h3>مشخصات</h3>'+kv(Object.entries(m.specs).map(([k,v])=>[k,esc(v)])):''}
+     ${m.sellers.length?'<h3>فروشندگان</h3>'+kv(m.sellers.map(s=>[s.name,num(s.price)+' تومان '+esc(s.city||'')])):''}
+     <h3>همین محصول در سایت‌های دیگر</h3><div id="oth"></div>`;
+    $('#x').onclick=closeDetail;
+    $('#sv').onclick=async e=>{await api(`/api/save/${m.source}/${m.source_id}?saved=true`,{});e.target.textContent='✓ ذخیره شد'};
+    line($('#lc1'),d.history.map(h=>({v:h.price})),'قیمت (تومان)');line($('#lc2'),d.history.map(h=>({v:h.rating_count})),'تعداد نظرات');
+    if(d.other_sites.length)productTable($('#oth'),d.other_sites);else $('#oth').innerHTML='<div class="muted">موردی پیدا نشد.</div>';
+  }catch(e){dr.innerHTML=`<button class="ib" id="x">✕ بستن</button><h2>${esc(p.title)}</h2><p class="err">${esc(e.message)}</p>`;$('#x').onclick=closeDetail}
 }
-$('#a-go').onclick=analyze;
-async function loadSaved(){const s=await api('/api/saved');list($('#s-out'),s);if(!s.length)$('#s-out').innerHTML='<p>چیزی ذخیره نشده (روی محصول راست‌کلیک کنید یا در صفحه‌ی تحلیل «ذخیره» را بزنید).</p>'}
-async function loadCfg(){const c=await api('/api/config');$('#c-lan').value=String(c.lan);
-  $('#c-url').innerHTML=c.lan?`آدرس برای موبایل: <b dir="ltr">${esc(c.lan_url)}</b>`:''}
+function closeDetail(){$('#drawer').classList.add('hide')}
+$('#drawer').onclick=e=>{if(e.target.id==='drawer')closeDetail()};
+document.onkeydown=e=>{if(e.key==='Escape')closeDetail()};
+// ---- تحلیل لینک
+$('#a-go').onclick=async()=>{
+  const u=$('#a-url').value.trim();if(!u)return;
+  $('#a-out').innerHTML='<div class="spin"></div>';
+  try{const d=await api('/api/analyze',{url:u});$('#a-out').innerHTML='';
+    const c=document.createElement('div');c.className='card';c.style.marginTop='14px';c.innerHTML='<h2>محصول و مشابه‌ها در سه سایت</h2><div id="a-t"></div>';$('#a-out').append(c);
+    productTable($('#a-t'),[d.product,...d.other_sites]);
+  }catch(e){$('#a-out').innerHTML=`<p class="err">${esc(e.message)}</p>`}
+};
+$('#a-url').onkeydown=e=>{if(e.key==='Enter')$('#a-go').click()};
+// ---- ذخیره‌شده / همه
+async function loadSaved(){const s=await api('/api/saved');const b=$('#s-box');if(!s.length)b.innerHTML='<div class="card empty">هنوز چیزی ذخیره نکرده‌اید. روی ⭐ کنار هر محصول بزنید.</div>';else productTable(b,s,{unsave:true})}
+async function loadHistory(){const s=await api('/api/products?limit=1000');const b=$('#h-box');if(!s.length)b.innerHTML='<div class="card empty">هنوز جستجویی انجام نشده.</div>';else productTable(b,s)}
+// ---- تنظیمات
+async function loadCfg(){const c=await api('/api/config');$('#c-lan').value=String(c.lan);$('#c-url').innerHTML=c.lan?`آدرس برای موبایل: <b dir="ltr">${esc(c.lan_url)}</b>`:'';$('#c-log').textContent=c.log||''}
 $('#c-lan').onchange=async()=>{await api('/api/config?lan='+$('#c-lan').value,{});alert('برنامه را ببندید و دوباره باز کنید.')};
+go('dash');
 </script>
 </body>
 </html>

@@ -21,7 +21,7 @@ jobs:
       - run: python -m pytest -q
       - run: >
           pyinstaller --onefile --noconsole --name ShApp
-          --add-data "app\web;web" --collect-submodules uvicorn --collect-submodules webview
+          --add-data "app\web;web" --collect-submodules uvicorn
           run.py
       - uses: actions/upload-artifact@v4
         with:
