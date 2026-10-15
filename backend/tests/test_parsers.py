@@ -62,7 +62,7 @@ def test_scoring_prefers_demand():
 
 def test_api_basics():
     c = TestClient(app)
-    assert c.get("/health").json() == {"ok": True}
+    assert c.get("/health").json() == {"ok": True, "app": "shapp"}
     assert len(c.get("/api/sources").json()) == 3
     assert c.post("/api/analyze", json={"url": "https://example.com/x"}).status_code == 400
 
