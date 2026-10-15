@@ -1,0 +1,21 @@
+name: sh_app
+description: یابنده‌ی محصولات پرفروش (دیجی‌کالا، ترب، باسلام)
+publish_to: none
+version: 0.1.0+1
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  http: ^1.2.0
+  shared_preferences: ^2.2.0
+  url_launcher: ^6.2.0
+  path: ^1.9.0
+  intl: any
+
+flutter:
+  uses-material-design: true
