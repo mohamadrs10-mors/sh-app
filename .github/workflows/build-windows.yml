@@ -1,0 +1,35 @@
+name: build-windows-exe
+on:
+  push:
+    branches: [claude/keen-turing-f9trxw, main]
+    tags: ["v*"]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install -r requirements.txt pyinstaller
+      - run: python -m pytest -q
+      - run: >
+          pyinstaller --onefile --noconsole --name ShApp
+          --add-data "app\web;web" --collect-submodules uvicorn --collect-submodules webview
+          run.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ShApp-windows
+          path: backend/dist/ShApp.exe
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${{ github.ref_name }}" dist/ShApp.exe --title "${{ github.ref_name }}" --generate-notes

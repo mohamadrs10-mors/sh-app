@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>یابنده‌ی محصول پرفروش</title>
+<style>
+:root{--bg:#faf7f3;--card:#fff;--tx:#2b2118;--mut:#7a6a5c;--ac:#8d5524;--bd:#e6ddd2;--ok:#2e7d32;--er:#c62828}
+@media(prefers-color-scheme:dark){:root{--bg:#1b1612;--card:#252019;--tx:#f1e9df;--mut:#a89888;--ac:#d9a066;--bd:#3a3128}}
+*{box-sizing:border-box}body{margin:0;font-family:Tahoma,Vazirmatn,sans-serif;background:var(--bg);color:var(--tx)}
+header{display:flex;gap:4px;padding:8px 12px;border-bottom:1px solid var(--bd);background:var(--card);position:sticky;top:0;flex-wrap:wrap}
+header button{background:none;border:0;padding:8px 14px;border-radius:8px;color:var(--tx);cursor:pointer;font:inherit}
+header button.on{background:var(--ac);color:#fff}
+main{max-width:1000px;margin:0 auto;padding:12px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin-bottom:12px}
+label{display:flex;flex-direction:column;font-size:12px;color:var(--mut);gap:3px}
+input,select{padding:8px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--tx);font:inherit}
+.btn{padding:9px 16px;border:0;border-radius:8px;background:var(--ac);color:#fff;cursor:pointer;font:inherit}
+.btn.sec{background:none;border:1px solid var(--ac);color:var(--ac)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:10px;margin-bottom:8px;display:flex;gap:10px;cursor:pointer}
+.card img{width:64px;height:64px;object-fit:cover;border-radius:8px;background:var(--bd)}
+.card .t{font-weight:bold}.card .m{font-size:12px;color:var(--mut);margin-top:4px}
+.score{margin-inline-start:auto;text-align:center;min-width:48px}.score b{font-size:22px;color:var(--ac)}.score small{display:block;font-size:10px;color:var(--mut)}
+.err{color:var(--er);margin:8px 0}.ok{color:var(--ok)}
+table{width:100%;border-collapse:collapse;font-size:13px}td{padding:5px;border-bottom:1px solid var(--bd);vertical-align:top}td:first-child{font-weight:bold;width:160px;color:var(--mut)}
+h3{margin:16px 0 6px}.hide{display:none}
+.spin{height:3px;background:linear-gradient(90deg,transparent,var(--ac),transparent);animation:s 1s infinite linear;background-size:200%}
+@keyframes s{to{background-position:-200% 0}}
+</style>
+</head>
+<body>
+<header>
+  <button data-t="discover" class="on">کشف پرفروش‌ها</button>
+  <button data-t="analyze">تحلیل لینک</button>
+  <button data-t="saved">ذخیره‌شده</button>
+  <button data-t="settings">تنظیمات</button>
+</header>
+<main>
+<section id="discover">
+  <div class="row">
+    <label>منبع<select id="d-src"><option value="digikala">دیجی‌کالا</option><option value="torob">ترب</option><option value="basalam">باسلام</option></select></label>
+    <label>مرتب‌سازی<select id="d-sort"><option value="bestseller">پرفروش‌ترین</option><option value="visits">پربازدیدترین</option><option value="newest">جدیدترین</option><option value="cheapest">ارزان‌ترین</option></select></label>
+    <label style="flex:1;min-width:200px"><span id="d-hint">اسلاگ دسته (مثل wood-and-timber از آدرس دسته در دیجی‌کالا)</span><input id="d-cat"></label>
+    <label>حداقل قیمت<input id="d-min" type="number" style="width:110px"></label>
+    <label>حداکثر قیمت<input id="d-max" type="number" style="width:110px"></label>
+    <label>تعداد صفحه<input id="d-pages" type="number" value="2" min="1" max="10" style="width:70px"></label>
+    <button class="btn" id="d-go">بیاب</button>
+    <button class="btn sec hide" id="d-csv">خروجی CSV</button>
+  </div>
+  <div id="d-out"></div>
+</section>
+<section id="analyze" class="hide">
+  <div class="row"><label style="flex:1;min-width:240px">لینک محصول (دیجی‌کالا / ترب / باسلام)<input id="a-url" dir="ltr"></label>
+  <button class="btn" id="a-go">تحلیل</button></div>
+  <div id="a-out"></div>
+</section>
+<section id="saved" class="hide"><div id="s-out"></div></section>
+<section id="settings" class="hide">
+  <div class="row"><label><span>اجازه‌ی اتصال موبایل از شبکه‌ی محلی (بعد از تغییر، برنامه را ببندید و دوباره باز کنید)</span>
+  <select id="c-lan"><option value="false">خاموش</option><option value="true">روشن</option></select></label></div>
+  <p id="c-url"></p>
+  <p style="color:var(--mut)">در موبایل، آدرس بالا را در مرورگر باز کنید (و با «افزودن به صفحه‌ی اصلی» مثل اپ نصبش کنید). موبایل و کامپیوتر باید به یک وای‌فای باشند و اگر ویندوز پرسید، دسترسی شبکه را Allow کنید.</p>
+</section>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'—').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num=n=>n==null?'—':Math.round(n).toLocaleString('fa-IR');
+const SRC={digikala:'دیجی‌کالا',torob:'ترب',basalam:'باسلام'};
+let last=[];
+async function api(path,body,method){
+  const r=await fetch(path,{method:method||(body?'POST':'GET'),headers:{'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined});
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(d.detail||('خطا '+r.status));
+  return d;
+}
+document.querySelectorAll('header button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('header button').forEach(x=>x.classList.toggle('on',x===b));
+  document.querySelectorAll('main section').forEach(s=>s.classList.toggle('hide',s.id!==b.dataset.t));
+  if(b.dataset.t==='saved')loadSaved();
+  if(b.dataset.t==='settings')loadCfg();
+});
+$('#d-src').onchange=()=>{$('#d-hint').textContent=$('#d-src').value==='digikala'?'اسلاگ دسته (مثل wood-and-timber از آدرس دسته در دیجی‌کالا)':'عبارت جستجو (مثل تخته چوب راش)'};
+function card(p){
+  const dem=p.sold_count!=null?'فروش: '+num(p.sold_count):'نظرات: '+num(p.rating_count);
+  const d=document.createElement('div');d.className='card';
+  d.innerHTML=`${p.image?`<img src="${esc(p.image)}" loading="lazy">`:'<img>'}<div><div class="t">${esc(p.title)}</div>
+  <div class="m">${SRC[p.source]||esc(p.source)} • ${num(p.price)} تومان${p.discount_percent?` • ٪${num(p.discount_percent)} تخفیف`:''}</div>
+  <div class="m">${dem} • فروشنده: ${num(p.seller_count)} • امتیاز: ${esc(p.rating)}</div></div>
+  <div class="score"><b>${num(p.opportunity_score)}</b><small>فرصت</small></div>`;
+  d.onclick=()=>{$('#a-url').value=p.url;document.querySelector('[data-t=analyze]').click();analyze()};
+  d.oncontextmenu=async e=>{e.preventDefault();await api(`/api/save/${p.source}/${p.source_id}?saved=true`,{});alert('ذخیره شد')};
+  return d;
+}
+function list(el,items){el.replaceChildren(...items.map(card))}
+async function discover(){
+  $('#d-out').innerHTML='<div class="spin"></div>';
+  try{
+    last=await api('/api/discover',{source:$('#d-src').value,category:$('#d-cat').value.trim(),sort:$('#d-sort').value,
+      pages:+$('#d-pages').value||2,min_price:+$('#d-min').value||null,max_price:+$('#d-max').value||null});
+    list($('#d-out'),last);$('#d-csv').classList.toggle('hide',!last.length);
+    if(!last.length)$('#d-out').innerHTML='<p class="err">نتیجه‌ای نبود.</p>';
+  }catch(e){$('#d-out').innerHTML=`<p class="err">${esc(e.message)}</p>`}
+}
+$('#d-go').onclick=discover;
+$('#d-csv').onclick=async()=>{
+  const r=await fetch('/api/export.csv',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(last)});
+  const a=document.createElement('a');a.href=URL.createObjectURL(await r.blob());a.download='products.csv';a.click();
+};
+const kv=(rows)=>'<table>'+rows.filter(r=>r[1]!=null&&r[1]!=='').map(r=>`<tr><td>${esc(r[0])}</td><td>${r[1]}</td></tr>`).join('')+'</table>';
+async function analyze(){
+  const out=$('#a-out');out.innerHTML='<div class="spin"></div>';
+  try{
+    const d=await api('/api/analyze',{url:$('#a-url').value.trim()});const m=d.product;
+    const ex=Object.entries(m.extra||{}).filter(([k,v])=>v!=null&&v!==''&&v!==false).map(([k,v])=>[k,esc(Array.isArray(v)?v.join('، '):v)]);
+    out.innerHTML=`<h2>${esc(m.title)}</h2>`+kv([['منبع',SRC[m.source]],['قیمت',num(m.price)+' تومان'],
+      ['قبل از تخفیف',m.old_price?num(m.old_price):null],['امتیاز',esc(m.rating)],['تعداد نظرات',num(m.rating_count)],
+      ['تعداد فروش',m.sold_count!=null?num(m.sold_count):null],['تعداد فروشنده',num(m.seller_count)],
+      ['برند',esc(m.brand)],['دسته',esc(m.category)],['امتیاز تقاضا',num(m.demand_score)],['امتیاز فرصت',num(m.opportunity_score)],...ex])
+    +(Object.keys(m.specs).length?'<h3>مشخصات</h3>'+kv(Object.entries(m.specs).map(([k,v])=>[k,esc(v)])):'')
+    +(m.sellers.length?'<h3>فروشندگان</h3>'+kv(m.sellers.map(s=>[s.name,num(s.price)+' تومان '+esc(s.city||'')])):'')
+    +(d.history.length>1?'<h3>تاریخچه</h3>'+kv(d.history.map(h=>[new Date(h.ts*1000).toLocaleString('fa-IR'),'قیمت '+num(h.price)+' • نظرات '+num(h.rating_count)])):'')
+    +`<p><a href="${esc(m.url)}" target="_blank" rel="noopener">باز کردن در سایت</a> • <a href="#" id="a-save">ذخیره</a></p><h3>مشابه در سایت‌های دیگر</h3><div id="a-oth"></div>`;
+    $('#a-save').onclick=async e=>{e.preventDefault();await api(`/api/save/${m.source}/${m.source_id}?saved=true`,{});e.target.textContent='ذخیره شد ✓'};
+    list($('#a-oth'),d.other_sites);
+  }catch(e){out.innerHTML=`<p class="err">${esc(e.message)}</p>`}
+}
+$('#a-go').onclick=analyze;
+async function loadSaved(){const s=await api('/api/saved');list($('#s-out'),s);if(!s.length)$('#s-out').innerHTML='<p>چیزی ذخیره نشده (روی محصول راست‌کلیک کنید یا در صفحه‌ی تحلیل «ذخیره» را بزنید).</p>'}
+async function loadCfg(){const c=await api('/api/config');$('#c-lan').value=String(c.lan);
+  $('#c-url').innerHTML=c.lan?`آدرس برای موبایل: <b dir="ltr">${esc(c.lan_url)}</b>`:''}
+$('#c-lan').onchange=async()=>{await api('/api/config?lan='+$('#c-lan').value,{});alert('برنامه را ببندید و دوباره باز کنید.')};
+</script>
+</body>
+</html>

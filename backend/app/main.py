@@ -7,9 +7,13 @@ import io
 import httpx
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import Response
+from fastapi.responses import FileResponse, Response
+from fastapi.staticfiles import StaticFiles
 
-from . import db
+import sys
+from pathlib import Path
+
+from . import config, db
 from .models import AnalyzeRequest, DiscoverRequest, Product
 from .scoring import score_products
 from .scrapers import REGISTRY, for_url
@@ -100,3 +104,30 @@ def export(products: list[Product]):
                     p.seller_count, p.opportunity_score, p.url])
     return Response("﻿" + buf.getvalue(), media_type="text/csv; charset=utf-8",
                     headers={"Content-Disposition": "attachment; filename=products.csv"})
+
+
+PORT = 8765
+
+
+@app.get("/api/config")
+def get_config():
+    cfg = config.load()
+    return {"lan": bool(cfg.get("lan")), "lan_url": f"http://{config.lan_ip()}:{PORT}"}
+
+
+@app.post("/api/config")
+def set_config(lan: bool):
+    config.save({**config.load(), "lan": lan})
+    return {"ok": True, "restart_required": True}
+
+
+WEB = Path(getattr(sys, "_MEIPASS", Path(__file__).parent.parent)) / (
+    "web" if hasattr(sys, "_MEIPASS") else "app/web")
+
+
+@app.get("/")
+def index():
+    return FileResponse(WEB / "index.html")
+
+
+app.mount("/static", StaticFiles(directory=WEB), name="static")

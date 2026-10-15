@@ -65,3 +65,10 @@ def test_api_basics():
     assert c.get("/health").json() == {"ok": True}
     assert len(c.get("/api/sources").json()) == 3
     assert c.post("/api/analyze", json={"url": "https://example.com/x"}).status_code == 400
+
+
+def test_web_ui_served():
+    c = TestClient(app)
+    r = c.get("/")
+    assert r.status_code == 200 and "یابنده" in r.text
+    assert c.get("/api/config").json()["lan_url"].startswith("http://")
