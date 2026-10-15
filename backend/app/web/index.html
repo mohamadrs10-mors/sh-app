@@ -99,6 +99,7 @@ svg text{fill:var(--tx);font-family:inherit}
     <div class="toolbar">
       <label style="flex:1;min-width:220px">کلیدواژه (مثلاً چوبی، گوشی، آشپزخانه)<input id="k-q" list="k-list" autocomplete="off"></label>
       <label>مرتب‌سازی در سایت<select id="k-sort"><option value="bestseller">پرفروش‌ترین</option><option value="visits">پربازدیدترین</option><option value="newest">جدیدترین</option><option value="cheapest">ارزان‌ترین</option></select></label>
+      <label>ترتیب نمایش نتایج<select id="k-order"><option value="opportunity_score">بیشترین فرصت (تقاضا + رقیب کم)</option><option value="_dem">فقط پرفروش‌ترین</option></select></label>
       <label>صفحه برای هر عبارت<input id="k-pages" type="number" value="1" min="1" max="5" style="width:80px"></label>
       <label>حداقل قیمت<input id="k-min" type="number" style="width:110px"></label>
       <label>حداکثر قیمت<input id="k-max" type="number" style="width:110px"></label>
@@ -189,7 +190,7 @@ $$('aside a.nav').forEach(a=>a.onclick=()=>go(a.dataset.t));
 
 // ---- جدول محصولات (مرتب‌سازی، فیلتر، صفحه‌بندی)
 function productTable(box,items,opts={}){
-  let sort='opportunity_score',asc=false,q='',page=0,PS=25,src='';
+  let sort=opts.sort||'opportunity_score',asc=false,q='',page=0,PS=25,src='';
   const cols=[['',null],['محصول','title'],['منبع','source'],['قیمت (تومان)','price'],['تقاضا','_dem'],['فروشنده','seller_count'],['امتیاز','rating'],['فرصت','opportunity_score'],['','']];
   const dem=p=>p.sold_count??p.rating_count??0;
   box.innerHTML=`<div class="toolbar" style="margin-top:14px"><input id="f-q" placeholder="فیلتر در نتایج…" style="min-width:200px"><select id="f-s"><option value="">همه‌ی منابع</option><option value="digikala">دیجی‌کالا</option><option value="torob">ترب</option><option value="basalam">باسلام</option></select><span class="muted" id="f-n"></span><span style="flex:1"></span><button class="btn sec" id="f-csv">⬇ خروجی CSV</button></div><div class="tw"><table><thead><tr></tr></thead><tbody></tbody></table></div><div class="pager"></div>`;
@@ -321,7 +322,7 @@ $('#k-go').onclick=async()=>{
     box.innerHTML='';
     if(r.errors.length){const d=document.createElement('details');d.className='card';d.style.marginTop='14px';d.innerHTML=`<summary class="err">${num(r.errors.length)} مورد با خطا مواجه شد (بقیه نتایج نمایش داده می‌شود)</summary>`+r.errors.map(e=>`<div class="muted" style="font-size:12px">${esc(e)}</div>`).join('');box.append(d)}
     if(!r.products.length){const d=document.createElement('div');d.className='card empty';d.style.marginTop='14px';d.textContent='نتیجه‌ای پیدا نشد.';box.append(d)}
-    else{const d=document.createElement('div');box.append(d);productTable(d,r.products)}
+    else{const d=document.createElement('div');box.append(d);productTable(d,r.products,{sort:$('#k-order').value})}
   }catch(e){box.innerHTML=`<p class="err">${esc(e.message)}</p>`}
   btn.disabled=false;
 };
