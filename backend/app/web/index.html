@@ -61,10 +61,12 @@ svg text{fill:var(--tx);font-family:inherit}
 <aside id="side">
   <div class="logo"><i>🪵</i>یابنده‌ی محصول</div>
   <a class="nav on" data-t="dash">📊 داشبورد</a>
+  <a class="nav" data-t="kw">🔑 جستجو با کلیدواژه</a>
   <a class="nav" data-t="discover">🔥 کشف پرفروش‌ها</a>
   <a class="nav" data-t="analyze">🔗 تحلیل لینک</a>
   <a class="nav" data-t="saved">⭐ ذخیره‌شده‌ها</a>
   <a class="nav" data-t="history">🗂 همه‌ی محصولات</a>
+  <a class="nav" data-t="kwm">🏷 مدیریت کلیدواژه‌ها</a>
   <a class="nav" data-t="settings">⚙️ تنظیمات</a>
   <div class="foot">دیجی‌کالا • ترب • باسلام</div>
 </aside>
@@ -90,6 +92,35 @@ svg text{fill:var(--tx);font-family:inherit}
   </div>
   <div class="card" style="margin-top:14px"><h2>شروع سریع</h2>
     <p class="muted" style="margin:0">۱) در «کشف پرفروش‌ها» یک دسته یا عبارت (مثلاً «تخته چوب راش») را جستجو کنید. ۲) روی هر محصول بزنید تا همه‌ی اطلاعاتش را ببینید. ۳) محصولات خوب را ذخیره کنید و با خروجی CSV برای تصمیم‌گیری ببرید.</p></div>
+</section>
+
+<section id="kw" class="hide">
+  <div class="card">
+    <div class="toolbar">
+      <label style="flex:1;min-width:220px">کلیدواژه (مثلاً چوبی، گوشی، آشپزخانه)<input id="k-q" list="k-list" autocomplete="off"></label>
+      <label>مرتب‌سازی در سایت<select id="k-sort"><option value="bestseller">پرفروش‌ترین</option><option value="visits">پربازدیدترین</option><option value="newest">جدیدترین</option><option value="cheapest">ارزان‌ترین</option></select></label>
+      <label>صفحه برای هر عبارت<input id="k-pages" type="number" value="1" min="1" max="5" style="width:80px"></label>
+      <label>حداقل قیمت<input id="k-min" type="number" style="width:110px"></label>
+      <label>حداکثر قیمت<input id="k-max" type="number" style="width:110px"></label>
+      <button class="btn" id="k-go">همه را بگرد</button>
+    </div>
+    <datalist id="k-list"></datalist>
+    <div class="toolbar" style="margin-top:10px">
+      <span class="muted">منابع:</span>
+      <label style="flex-direction:row;align-items:center;gap:4px"><input type="checkbox" class="k-src" value="digikala" checked> دیجی‌کالا</label>
+      <label style="flex-direction:row;align-items:center;gap:4px"><input type="checkbox" class="k-src" value="torob" checked> ترب</label>
+      <label style="flex-direction:row;align-items:center;gap:4px"><input type="checkbox" class="k-src" value="basalam" checked> باسلام</label>
+    </div>
+    <div style="margin-top:12px"><span class="muted" id="k-info"></span><div id="k-chips" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"></div>
+      <div class="toolbar" style="margin-top:8px"><input id="k-add" placeholder="افزودن عبارت دلخواه…" style="min-width:220px"><button class="btn sec" id="k-addb">+ افزودن</button></div></div>
+  </div>
+  <div id="k-box"></div>
+</section>
+
+<section id="kwm" class="hide">
+  <div class="card"><p class="muted" style="margin-top:0">هر گروه یک نام، چند «نام‌های دیگر» (کلیدواژه‌هایی که به این گروه می‌رسند) و فهرست عبارت‌هایی که در سایت‌ها جستجو می‌شود دارد. هر خط یک مورد.</p>
+  <div id="m-list"></div>
+  <div class="toolbar" style="margin-top:12px"><button class="btn sec" id="m-add">+ گروه جدید</button><button class="btn" id="m-save">ذخیره</button><button class="btn sec" id="m-reset">بازگشت به پیش‌فرض</button><span id="m-msg" class="muted"></span></div></div>
 </section>
 
 <section id="discover" class="hide">
@@ -134,7 +165,7 @@ const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
 const esc=s=>String(s??'—').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const num=n=>n==null?'—':Math.round(n).toLocaleString('fa-IR');
 const SRC={digikala:'دیجی‌کالا',torob:'ترب',basalam:'باسلام'};
-const TITLES={dash:'داشبورد',discover:'کشف پرفروش‌ها',analyze:'تحلیل لینک',saved:'ذخیره‌شده‌ها',history:'همه‌ی محصولات',settings:'تنظیمات'};
+const TITLES={kw:'جستجو با کلیدواژه',kwm:'مدیریت کلیدواژه‌ها',dash:'داشبورد',discover:'کشف پرفروش‌ها',analyze:'تحلیل لینک',saved:'ذخیره‌شده‌ها',history:'همه‌ی محصولات',settings:'تنظیمات'};
 async function api(path,body,method){
   const r=await fetch(path,{method:method||(body?'POST':'GET'),headers:{'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined});
   const d=await r.json().catch(()=>({}));
@@ -152,7 +183,7 @@ function go(t){
   $$('aside a.nav').forEach(x=>x.classList.toggle('on',x.dataset.t===t));
   $$('main section').forEach(s=>s.classList.toggle('hide',s.id!==t));
   $('#title').textContent=TITLES[t];$('#side').classList.remove('open');
-  ({dash:loadDash,saved:loadSaved,history:loadHistory,settings:loadCfg}[t]||(()=>{}))();
+  ({kwm:loadKwm,dash:loadDash,saved:loadSaved,history:loadHistory,settings:loadCfg}[t]||(()=>{}))();
 }
 $$('aside a.nav').forEach(a=>a.onclick=()=>go(a.dataset.t));
 
@@ -171,7 +202,7 @@ function productTable(box,items,opts={}){
     box.querySelector('thead tr').innerHTML=cols.map(([l,k])=>`<th ${k?`data-k="${k}"`:''} class="${k&&k===sort?'s '+(asc?'asc':''):''}">${l}</th>`).join('');
     box.querySelectorAll('th[data-k]').forEach(h=>h.onclick=()=>{asc=sort===h.dataset.k?!asc:false;sort=h.dataset.k;render()});
     const tb=box.querySelector('tbody');
-    tb.innerHTML=rows.slice(page*PS,page*PS+PS).map((p,i)=>`<tr class="r" data-i="${i}"><td>${p.image?`<img loading="lazy" src="${esc(p.image)}">`:''}</td><td><div class="tt">${esc(p.title)}</div></td><td><span class="tag ${esc(p.source)}">${SRC[p.source]||esc(p.source)}</span></td><td>${num(p.price)}${p.discount_percent?` <span class="tag">٪${num(p.discount_percent)}-</span>`:''}</td><td>${p.sold_count!=null?num(p.sold_count)+' فروش':num(p.rating_count)+' نظر'}</td><td>${num(p.seller_count)}</td><td>${p.rating??'—'}</td><td><div style="display:flex;gap:8px;align-items:center"><b>${num(p.opportunity_score)}</b><div class="bar"><i style="width:${Math.min(100,p.opportunity_score)}%"></i></div></div></td><td><button class="ib" data-sv="${i}" title="ذخیره">⭐</button></td></tr>`).join('')||`<tr><td colspan="9" class="empty">نتیجه‌ای نیست</td></tr>`;
+    tb.innerHTML=rows.slice(page*PS,page*PS+PS).map((p,i)=>`<tr class="r" data-i="${i}"><td>${p.image?`<img loading="lazy" src="${esc(p.image)}">`:''}</td><td><div class="tt">${esc(p.title)}</div>${p.extra&&p.extra.term?`<div class="muted" style="font-size:11px">عبارت: ${esc(p.extra.term)}</div>`:''}</td><td><span class="tag ${esc(p.source)}">${SRC[p.source]||esc(p.source)}</span></td><td>${num(p.price)}${p.discount_percent?` <span class="tag">٪${num(p.discount_percent)}-</span>`:''}</td><td>${p.sold_count!=null?num(p.sold_count)+' فروش':num(p.rating_count)+' نظر'}</td><td>${num(p.seller_count)}</td><td>${p.rating??'—'}</td><td><div style="display:flex;gap:8px;align-items:center"><b>${num(p.opportunity_score)}</b><div class="bar"><i style="width:${Math.min(100,p.opportunity_score)}%"></i></div></div></td><td><button class="ib" data-sv="${i}" title="ذخیره">⭐</button></td></tr>`).join('')||`<tr><td colspan="9" class="empty">نتیجه‌ای نیست</td></tr>`;
     const view=rows.slice(page*PS,page*PS+PS);
     tb.querySelectorAll('tr.r').forEach(tr=>tr.onclick=e=>{if(e.target.closest('[data-sv]'))return;openDetail(view[tr.dataset.i])});
     tb.querySelectorAll('[data-sv]').forEach(b=>b.onclick=async()=>{const p=view[b.dataset.sv];await api(`/api/save/${p.source}/${p.source_id}?saved=${!opts.unsave}`,{});b.textContent=opts.unsave?'✓':'✓ ذخیره شد'; if(opts.unsave)loadSaved()});
@@ -264,6 +295,53 @@ async function loadHistory(){const s=await api('/api/products?limit=1000');const
 // ---- تنظیمات
 async function loadCfg(){const c=await api('/api/config');$('#c-lan').value=String(c.lan);$('#c-url').innerHTML=c.lan?`آدرس برای موبایل: <b dir="ltr">${esc(c.lan_url)}</b>`:'';$('#c-log').textContent=c.log||''}
 $('#c-lan').onchange=async()=>{await api('/api/config?lan='+$('#c-lan').value,{});alert('برنامه را ببندید و دوباره باز کنید.')};
+
+// ---- جستجو با کلیدواژه
+let kTerms=[],kGroup=null,kTimer=null;
+function renderChips(){
+  $('#k-chips').innerHTML=kTerms.map((t,i)=>`<span class="tag" style="font-size:12px;padding:4px 10px">${esc(t)} <a data-x="${i}" style="cursor:pointer;color:var(--er)">✕</a></span>`).join('');
+  $('#k-chips').querySelectorAll('[data-x]').forEach(a=>a.onclick=()=>{kTerms.splice(+a.dataset.x,1);renderChips()});
+  $('#k-info').textContent=kTerms.length?(kGroup?`گروه «${kGroup}» — ${num(kTerms.length)} عبارت جستجو می‌شود:`:`عبارت جستجو می‌شود:`):'';
+}
+async function resolveKw(){
+  const q=$('#k-q').value.trim();if(!q){kTerms=[];kGroup=null;renderChips();return}
+  try{const r=await api('/api/keywords/resolve?q='+encodeURIComponent(q));kTerms=r.terms;kGroup=r.group;renderChips()}catch(e){}
+}
+$('#k-q').oninput=()=>{clearTimeout(kTimer);kTimer=setTimeout(resolveKw,300)};
+$('#k-q').onkeydown=e=>{if(e.key==='Enter'){resolveKw().then(()=>$('#k-go').click())}};
+$('#k-addb').onclick=()=>{const v=$('#k-add').value.trim();if(v){kTerms.push(v);$('#k-add').value='';renderChips()}};
+$('#k-add').onkeydown=e=>{if(e.key==='Enter')$('#k-addb').click()};
+$('#k-go').onclick=async()=>{
+  const box=$('#k-box'),btn=$('#k-go');
+  if(!$('#k-q').value.trim()){box.innerHTML='<p class="err">کلیدواژه را وارد کنید.</p>';return}
+  if(!kTerms.length)await resolveKw();
+  const srcs=[...$$('.k-src')].filter(c=>c.checked).map(c=>c.value);
+  box.innerHTML=`<div class="card" style="margin-top:14px">در حال جستجوی ${num(kTerms.length)} عبارت در ${num(srcs.length)} سایت… (ممکن است چند دقیقه طول بکشد)<div class="spin"></div></div>`;btn.disabled=true;
+  try{const r=await api('/api/discover_keyword',{keyword:$('#k-q').value.trim(),sources:srcs,terms:kTerms,sort:$('#k-sort').value,pages:+$('#k-pages').value||1,min_price:+$('#k-min').value||null,max_price:+$('#k-max').value||null});
+    box.innerHTML='';
+    if(r.errors.length){const d=document.createElement('details');d.className='card';d.style.marginTop='14px';d.innerHTML=`<summary class="err">${num(r.errors.length)} مورد با خطا مواجه شد (بقیه نتایج نمایش داده می‌شود)</summary>`+r.errors.map(e=>`<div class="muted" style="font-size:12px">${esc(e)}</div>`).join('');box.append(d)}
+    if(!r.products.length){const d=document.createElement('div');d.className='card empty';d.style.marginTop='14px';d.textContent='نتیجه‌ای پیدا نشد.';box.append(d)}
+    else{const d=document.createElement('div');box.append(d);productTable(d,r.products)}
+  }catch(e){box.innerHTML=`<p class="err">${esc(e.message)}</p>`}
+  btn.disabled=false;
+};
+async function loadKwList(){try{const g=await api('/api/keywords');$('#k-list').innerHTML=g.flatMap(x=>[x.name,...x.aliases]).map(n=>`<option value="${esc(n)}">`).join('')}catch(e){}}
+loadKwList();
+// ---- مدیریت کلیدواژه‌ها
+let kGroups=[];
+function renderKwm(){
+  $('#m-list').innerHTML=kGroups.map((g,i)=>`<div class="card" style="margin-bottom:10px"><div class="toolbar">
+   <label style="min-width:160px">نام گروه<input data-i="${i}" data-f="name" value="${esc(g.name)}"></label>
+   <label style="flex:1;min-width:200px">نام‌های دیگر (هر خط یکی)<textarea rows="4" data-i="${i}" data-f="aliases">${esc(g.aliases.join('\n'))}</textarea></label>
+   <label style="flex:2;min-width:240px">عبارت‌های جستجو (هر خط یکی)<textarea rows="4" data-i="${i}" data-f="terms">${esc(g.terms.join('\n'))}</textarea></label>
+   <button class="ib" data-del="${i}">🗑 حذف</button></div></div>`).join('');
+  $('#m-list').querySelectorAll('[data-f]').forEach(el=>el.oninput=()=>{const g=kGroups[el.dataset.i],f=el.dataset.f;g[f]=f==='name'?el.value:el.value.split('\n')});
+  $('#m-list').querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{kGroups.splice(+b.dataset.del,1);renderKwm()});
+}
+async function loadKwm(){kGroups=await api('/api/keywords');renderKwm()}
+$('#m-add').onclick=()=>{kGroups.push({name:'',aliases:[],terms:[]});renderKwm()};
+$('#m-save').onclick=async()=>{try{kGroups=await api('/api/keywords',kGroups,'PUT');renderKwm();$('#m-msg').textContent='ذخیره شد ✓';loadKwList()}catch(e){$('#m-msg').textContent=e.message}};
+$('#m-reset').onclick=async()=>{if(confirm('گروه‌ها به پیش‌فرض برگردد؟')){kGroups=await api('/api/keywords/reset',{});renderKwm();loadKwList()}};
 go('dash');
 </script>
 </body>

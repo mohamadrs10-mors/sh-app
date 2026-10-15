@@ -46,3 +46,19 @@ class DiscoverRequest(BaseModel):
 class AnalyzeRequest(BaseModel):
     url: str
     cross_search: bool = True  # همان محصول را در سایت‌های دیگر هم بگرد
+
+
+class KeywordRequest(BaseModel):
+    keyword: str
+    sources: list[str] = Field(default_factory=lambda: ["digikala", "torob", "basalam"])
+    sort: str = "bestseller"
+    pages: int = Field(default=1, ge=1, le=5)  # صفحه برای هر عبارت
+    terms: list[str] | None = None  # اگر داده شود به‌جای عبارت‌های گروه استفاده می‌شود
+    min_price: int | None = None
+    max_price: int | None = None
+
+
+class KeywordGroup(BaseModel):
+    name: str
+    aliases: list[str] = Field(default_factory=list)
+    terms: list[str]

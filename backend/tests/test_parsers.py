@@ -80,3 +80,39 @@ def test_dashboard_endpoints():
     s = c.get("/api/stats").json()
     assert {"total", "saved", "by_source", "top"} <= s.keys()
     assert isinstance(c.get("/api/products").json(), list)
+
+
+def test_keyword_resolve_and_discover(monkeypatch):
+    from app import keywords
+    assert keywords.resolve("چوبی")[0] == "چوب"
+    assert keywords.resolve("گوشی")[0] == "موبایل"
+    assert keywords.resolve("كتاب") == (None, ["كتاب"])  # نامعلوم: خودش عبارت می‌شود
+
+    from app.scrapers import REGISTRY
+
+    async def fake(self, client, req):
+        if req.category == "ام دی اف" and self.name == "torob":
+            raise RuntimeError("boom")
+        p = parse_listing_item({**DK, "id": abs(hash(req.category)) % 10**6})
+        p.source = self.name
+        return [p, parse_listing_item(DK)]  # DK تکراری باید ادغام شود
+
+    for s in REGISTRY.values():
+        monkeypatch.setattr(type(s), "discover", fake)
+    c = TestClient(app)
+    r = c.post("/api/discover_keyword", json={"keyword": "چوب", "sources": ["digikala", "torob"],
+                                              "terms": ["تخته", "ام دی اف"]}).json()
+    assert r["group"] == "چوب"
+    assert len(r["errors"]) == 1 and "ام دی اف" in r["errors"][0]
+    keys = {(p["source"], p["source_id"]) for p in r["products"]}
+    assert len(keys) == len(r["products"])  # بدون تکراری
+    assert r["products"][0]["opportunity_score"] >= r["products"][-1]["opportunity_score"]
+
+
+def test_keywords_crud():
+    c = TestClient(app)
+    gs = c.get("/api/keywords").json()
+    assert any(g["name"] == "چوب" for g in gs)
+    c.put("/api/keywords", json=[{"name": "تست", "aliases": ["t"], "terms": ["الف", "ب"]}])
+    assert c.get("/api/keywords/resolve", params={"q": "t"}).json()["terms"] == ["الف", "ب"]
+    assert c.post("/api/keywords/reset").json()[0]["name"] == "چوب"

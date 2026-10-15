@@ -13,8 +13,8 @@ from fastapi.staticfiles import StaticFiles
 import sys
 from pathlib import Path
 
-from . import config, db
-from .models import AnalyzeRequest, DiscoverRequest, Product
+from . import config, db, keywords
+from .models import AnalyzeRequest, DiscoverRequest, KeywordGroup, KeywordRequest, Product
 from .scoring import score_products
 from .scrapers import REGISTRY, for_url
 
@@ -53,6 +53,67 @@ async def discover(req: DiscoverRequest):
     items = score_products(items)
     db.upsert(items)
     return items
+
+
+@app.get("/api/keywords")
+def get_keywords():
+    return keywords.groups()
+
+
+@app.put("/api/keywords")
+def put_keywords(groups: list[KeywordGroup]):
+    keywords.save_groups([g.model_dump() for g in groups])
+    return keywords.groups()
+
+
+@app.post("/api/keywords/reset")
+def reset_keywords():
+    keywords.reset_groups()
+    return keywords.groups()
+
+
+@app.get("/api/keywords/resolve")
+def resolve_keyword(q: str):
+    group, terms = keywords.resolve(q)
+    return {"group": group, "terms": terms}
+
+
+@app.post("/api/discover_keyword")
+async def discover_keyword(req: KeywordRequest):
+    """کلیدواژه → همه‌ی عبارت‌های مرتبط در همه‌ی منابع انتخاب‌شده؛ ادغام، حذف تکراری، امتیازدهی."""
+    group, terms = keywords.resolve(req.keyword)
+    terms = [t for t in (req.terms or terms) if t.strip()]
+    if not terms:
+        raise HTTPException(400, "کلیدواژه خالی است")
+    scrapers = [REGISTRY[s] for s in req.sources if s in REGISTRY]
+    if not scrapers:
+        raise HTTPException(400, "هیچ منبعی انتخاب نشده")
+    found: dict[tuple[str, str], Product] = {}
+    errors: list[str] = []
+
+    async def run_source(scraper, client):
+        # هر منبع پشت‌سرهم (مودبانه)، منابع مختلف هم‌زمان
+        for term in terms:
+            try:
+                items = await scraper.discover(client, DiscoverRequest(
+                    source=scraper.name, category=term, sort=req.sort, pages=req.pages))
+            except Exception as e:  # یک عبارت خراب نباید کل جستجو را بخواباند
+                errors.append(f"{scraper.label} «{term}»: {e}")
+                continue
+            for p in items:
+                p.extra["term"] = term
+                found.setdefault((p.source, p.source_id), p)
+
+    async with _client() as c:
+        await asyncio.gather(*(run_source(s, c) for s in scrapers))
+    items = list(found.values())
+    if req.min_price:
+        items = [p for p in items if p.price and p.price >= req.min_price]
+    if req.max_price:
+        items = [p for p in items if p.price and p.price <= req.max_price]
+    items = score_products(items)
+    db.upsert(items)
+    return {"group": group, "terms": terms, "products": items, "errors": errors}
 
 
 @app.post("/api/analyze")

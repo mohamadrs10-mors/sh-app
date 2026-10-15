@@ -100,10 +100,14 @@ class DigikalaScraper(Scraper):
     async def discover(self, client: httpx.AsyncClient, req: DiscoverRequest) -> list[Product]:
         out: list[Product] = []
         sort = SORTS.get(req.sort, 7)
+        is_query = not re.fullmatch(r"[A-Za-z0-9_\-]+", req.category)  # فارسی/فاصله → جستجوی متنی
         for page in range(1, req.pages + 1):
-            data = await self.get_json(
-                client, f"{BASE}/v1/categories/{req.category}/search/", page=page, sort=sort
-            )
+            if is_query:
+                data = await self.get_json(client, f"{BASE}/v1/search/", q=req.category,
+                                           page=page, sort=sort)
+            else:
+                data = await self.get_json(
+                    client, f"{BASE}/v1/categories/{req.category}/search/", page=page, sort=sort)
             items = pick(data, "data.products", default=[])
             out += [parse_listing_item(p) for p in items if p.get("id")]
             if page >= (to_int(pick(data, "data.pager.total_pages")) or 1):
